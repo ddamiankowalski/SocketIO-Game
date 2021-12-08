@@ -13,6 +13,10 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     console.log('a user connected!');
 
+    setInterval(() => {
+        socket.broadcast.emit('hi');
+    }, 1000)
+
     socket.on('chat message', (msg) => {
         console.log(msg);
         io.emit('chat message', msg);

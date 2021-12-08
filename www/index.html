@@ -35,5 +35,9 @@
       message.innerHTML = msg;
       document.body.appendChild(message);
   })
+
+  socket.on('hi', () => {
+      console.log('PRZYSLANO WIADOMOSC')
+  })
 </script>
 </html>
