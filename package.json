@@ -1,0 +1,19 @@
+{
+  "name": "socketio-game",
+  "version": "1.0.0",
+  "description": "Simple application/game using Socket.io",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddamiankowalski/SocketIO-Game.git"
+  },
+  "author": "Damian Kowalski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ddamiankowalski/SocketIO-Game/issues"
+  },
+  "homepage": "https://github.com/ddamiankowalski/SocketIO-Game#readme"
+}
