@@ -11,7 +11,8 @@ let activeClients = [];
 let idToDelete;
 
 class Player {
-    constructor(id) {
+    constructor(id, name) {
+        this.name = name;
         this.playerId = id;
         this.xPos = Math.floor(Math.random() * 100);
         this.yPos = Math.floor(Math.random() * 100);
@@ -37,13 +38,16 @@ io.on('connection', (socket) => {
     // adding a new client to activeClients array
     activeClients.push(socket);
 
-    // adding a new player to a playerList
-    let player = new Player(socket.id);
-    playerList.push(player);
-    
     io.to(socket.id).emit('renderAllOther', playerList, socket.id);
 
-    io.emit('addPlayersData', playerList, player, socket.id);
+    // client provided us with a name of the player so the game can be started
+    socket.on('startGame', (name) => {
+        // adding a new player to a playerList
+        let player = new Player(socket.id, name);
+        playerList.push(player);
+
+        io.emit('addPlayersData', playerList, player, socket.id);
+    })
 
     socket.on('disconnect', function() {
         console.log('disconnected!')
