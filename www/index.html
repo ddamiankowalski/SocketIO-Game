@@ -64,14 +64,10 @@
             margin-bottom: 30px;
             color: white;
         }
-        .square {
-            background-image: url('../img/playerbg.png') !important;
-        }
     </style>
     <title>Socket.IO app/game</title>
 </head>
 <body>
-    <img src="bg.png" alt="">
     <div id="usernameWrapper">
         <div id="username">
             <p>Prosze podaj swoj nick przed zaczęciem gry:</p>
@@ -110,9 +106,9 @@
         // rendering the new element on screen for already existing clients
         let newSquare = document.createElement('div');
         newSquare.id = `${id}`;
-        newSquare.style.height = '50px';
-        newSquare.style.width = '50px';
-        newSquare.style.backgroundImage = "url('/img/playerbg.png')";
+        newSquare.style.height = '10px';
+        newSquare.style.width = '10px';
+        newSquare.style.backgroundColor = 'red';
         newSquare.style.position = 'absolute';
         newSquare.style.top = `${playerInfo.yPos}px`;
         newSquare.style.left = `${playerInfo.xPos}px`;
@@ -159,9 +155,9 @@
                 // rendering every existing element on screen for the newly connected client
                 let newSquare = document.createElement('div');
                 newSquare.id = `${square.playerId}`;
-                newSquare.style.height = '50px';
-                newSquare.style.width = '50px';
-                newSquare.style.backgroundImage = "url('/img/playerbg.png')";
+                newSquare.style.height = '10px';
+                newSquare.style.width = '10px';
+                newSquare.style.backgroundColor = 'red';
                 newSquare.style.position = 'absolute';
                 newSquare.style.top = `${square.yPos}px`;
                 newSquare.style.left = `${square.xPos}px`;
