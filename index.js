@@ -32,7 +32,7 @@ io.on('connection', (socket) => {
                 player.yPos = top;
             }
         }) 
-        io.emit('refreshData', playerList);
+        io.volatile.emit('refreshData', playerList);
     })
 
     // adding a new client to activeClients array
