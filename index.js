@@ -32,7 +32,6 @@ io.on('connection', (socket) => {
                 player.yPos = top;
             }
         }) 
-        io.volatile.emit('refreshData', playerList);
     })
 
     // adding a new client to activeClients array
@@ -65,13 +64,13 @@ io.on('connection', (socket) => {
 })
 
 // game loop situated on the server or backend
-// setInterval(() => {
-//     // playerList.forEach(function(element) {
-//     //     element.xPos = element.xPos + 1;
-//     //     element.yPos = element.yPos + 1;
-//     // })
-    
-// }, 50)
+setInterval(() => {
+    // playerList.forEach(function(element) {
+    //     element.xPos = element.xPos + 1;
+    //     element.yPos = element.yPos + 1;
+    // })
+    io.emit('refreshData', playerList);
+}, 1)
 
 
 
