@@ -70,7 +70,7 @@ setInterval(() => {
     //     element.yPos = element.yPos + 1;
     // })
     io.emit('refreshData', playerList);
-}, 10)
+}, 50)
 
 
 
