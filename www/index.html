@@ -125,25 +125,25 @@
             elementToMove.style.left = elementToMove.getBoundingClientRect().left + 1 + 'px';
             
             // emit the information about the square's location back to the server
-            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         }else if(keyA) {
             let elementToMove = document.getElementById(localPlayerId);
             elementToMove.style.left = elementToMove.getBoundingClientRect().left - 1 + 'px';
             
             // emit the information about the square's location back to the server
-            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         } else if(keyS) {
             let elementToMove = document.getElementById(localPlayerId);
             elementToMove.style.top = elementToMove.getBoundingClientRect().top + 1 + 'px';
             
             // emit the information about the square's location back to the server
-            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         } else if(keyW) {
             let elementToMove = document.getElementById(localPlayerId);
             elementToMove.style.top = elementToMove.getBoundingClientRect().top - 1 + 'px';
             
             // emit the information about the square's location back to the server
-            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         }
     }, 1)
 </script>
