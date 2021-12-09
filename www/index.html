@@ -7,37 +7,144 @@
     <title>Socket.IO app/game</title>
 </head>
 <body>
-    <h1>Witaj w mojej aplikacji</h1>
-    <p>Prosze wpisz coś w formie poniżej aby wyświetlić wiadomość za pomocą socketio</p>
-    <form id="form" action="">
-        <input id="input" autocomplete="off">
-        <button>Wyślij</button>
-    </form>
 </body>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  var socket = io();
+    var socket = io();
 
-  let form = document.getElementById('form');
-  let input = document.getElementById('input');
+    let localPlayerInfo, localPlayerId;
+    let keyD = false, keyW = false, keyA = false, keyS = false;
 
-  form.addEventListener('submit', function(e) {
-      e.preventDefault();
+    socket.on('addPlayersData', (res, playerInfo, id) => {
+        localPlayerInfo = res;
 
-      if(input.value) {
-          socket.emit('chat message', input.value);
-          input.value = '';
-      }
-  })
+        // rendering the new element on screen for already existing clients
+        let newSquare = document.createElement('div');
+        newSquare.id = `${id}`;
+        newSquare.style.height = '10px';
+        newSquare.style.width = '10px';
+        newSquare.style.backgroundColor = 'red';
+        newSquare.style.position = 'absolute';
+        newSquare.style.top = `${playerInfo.yPos}px`;
+        newSquare.style.left = `${playerInfo.xPos}px`;
+        newSquare.className = 'square';
 
-  socket.on('chat message', (msg) => {
-      let message = document.createElement('p');
-      message.innerHTML = msg;
-      document.body.appendChild(message);
-  })
+        document.body.appendChild(newSquare);
+    })
 
-  socket.on('hi', () => {
-      console.log('PRZYSLANO WIADOMOSC')
-  })
+    socket.on('deletePlayersData', (res, id) => {
+        localPlayerInfo = res;
+
+        // delete element from html DOM
+        let allSquares = document.getElementsByClassName('square');
+        for(let square of allSquares) {
+            if(id == square.id) {
+                square.remove();
+            }
+        }
+    })
+
+    socket.on('refreshData', (res) => {
+        localPlayerInfo = res;
+        localPlayerInfo.forEach(square => {
+            let elementToChange = document.getElementById(`${square.playerId}`);
+            elementToChange.style.top = square.yPos + 'px';
+            elementToChange.style.left = square.xPos + 'px';
+        })
+    })
+
+    socket.on('renderAllOther', (res, id) => {
+        localPlayerId = id;
+        res.forEach(square => {
+            if(id != square.playerId) {
+                // rendering every existing element on screen for the newly connected client
+                let newSquare = document.createElement('div');
+                newSquare.id = `${square.playerId}`;
+                newSquare.style.height = '10px';
+                newSquare.style.width = '10px';
+                newSquare.style.backgroundColor = 'red';
+                newSquare.style.position = 'absolute';
+                newSquare.style.top = `${square.yPos}px`;
+                newSquare.style.left = `${square.xPos}px`;
+                newSquare.className = 'square';
+
+                document.body.appendChild(newSquare);
+            }
+        })
+    })
+
+    function renderPlayers(playersInfo) {
+        localPlayerInfo = playersInfo;
+    }
+
+    // listening for WSAD movement
+    window.addEventListener('keydown', keyDownHandler, false);
+    window.addEventListener('keyup', keyUpHandler, false);
+
+    function keyDownHandler(ev) {
+        ev.preventDefault();
+        let keyCode = ev.keyCode;
+        switch (keyCode) {
+            case 68:
+                keyD = true;
+                break;
+            case 83: 
+                keyS = true;
+                break;
+            case 65:
+                keyA = true;
+                break;
+            case 87:
+                keyW = true;
+                break;
+        }
+    }
+
+    function keyUpHandler(ev) {
+        ev.preventDefault();
+        let keyCode = ev.keyCode;
+        switch (keyCode) {
+            case 68:
+                keyD = false;
+                break;
+            case 83: 
+                keyS = false;
+                break;
+            case 65:
+                keyA = false;
+                break;
+            case 87:
+                keyW = false;
+                break;
+        }
+    }
+
+    window.setInterval(() => {
+        if(keyD) {
+            let elementToMove = document.getElementById(localPlayerId);
+            elementToMove.style.left = elementToMove.getBoundingClientRect().left + 3 + 'px';
+            
+            // emit the information about the square's location back to the server
+            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+        }else if(keyA) {
+            let elementToMove = document.getElementById(localPlayerId);
+            elementToMove.style.left = elementToMove.getBoundingClientRect().left - 3 + 'px';
+            
+            // emit the information about the square's location back to the server
+            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+        } else if(keyS) {
+            let elementToMove = document.getElementById(localPlayerId);
+            elementToMove.style.top = elementToMove.getBoundingClientRect().top + 3 + 'px';
+            
+            // emit the information about the square's location back to the server
+            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+        } else if(keyW) {
+            let elementToMove = document.getElementById(localPlayerId);
+            elementToMove.style.top = elementToMove.getBoundingClientRect().top - 3 + 'px';
+            
+            // emit the information about the square's location back to the server
+            socket.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+        }
+    }, 1)
 </script>
 </html>
