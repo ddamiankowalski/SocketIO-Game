@@ -47,9 +47,11 @@
     socket.on('refreshData', (res) => {
         localPlayerInfo = res;
         localPlayerInfo.forEach(square => {
-            let elementToChange = document.getElementById(`${square.playerId}`);
-            elementToChange.style.top = square.yPos + 'px';
-            elementToChange.style.left = square.xPos + 'px';
+            if(square.playerId != localPlayerId) {
+                let elementToChange = document.getElementById(`${square.playerId}`);
+                elementToChange.style.top = square.yPos + 'px';
+                elementToChange.style.left = square.xPos + 'px';
+            }  
         })
     })
 
