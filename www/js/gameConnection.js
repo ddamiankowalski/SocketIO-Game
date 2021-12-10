@@ -1,6 +1,6 @@
     var socket = io();
 
-    let localPlayerInfo, localPlayerId, localPlayerName, isGameStarted = false;
+    let localPlayerInfo, localPlayerId, localPlayerName, isGameStarted = false, localPlayerVelocity = [0, 0], localPlayerAcceleration = [0,0];
     let keyD = false, keyW = false, keyA = false, keyS = false;
 
     var form = document.getElementById('form');
@@ -11,7 +11,6 @@
         localPlayerName = input.value;
         console.log(input.value)
         socket.emit('startGame', localPlayerName);
-        document.body.appendChild(renderer.domElement)
         isGameStarted = true;
         document.getElementById('usernameWrapper').remove();
         input.value = '';
@@ -125,19 +124,27 @@
 
     // PLAYER MOVEMENT SECTION
 
+    let acceleration = 1;
+
+    let dotProduct = (a, b) => a.map((x, i) => x + b[i]);
+
     window.setInterval(() => {
         if(!isGameStarted) return;
         if(keyD && keyS) {
+            localPlayerAcceleration = [0.1, 0.1];
+            localPlayerVelocity = dotProduct(localPlayerVelocity, localPlayerAcceleration)
             let elementToMove = document.getElementById(localPlayerId);
-            elementToMove.style.left = elementToMove.getBoundingClientRect().left + 1 + 'px';
-            elementToMove.style.top = elementToMove.getBoundingClientRect().top + 1 + 'px';
+            elementToMove.style.left = elementToMove.getBoundingClientRect().left + localPlayerVelocity[0] + 'px';
+            elementToMove.style.top = elementToMove.getBoundingClientRect().top + localPlayerVelocity[1] + 'px';
             
             // emit the information about the square's location back to the server
             socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         }else if(keyD && keyW) {
+            localPlayerAcceleration = [0.1, 0.1];
+            localPlayerVelocity = dotProduct(localPlayerVelocity, localPlayerAcceleration)
             let elementToMove = document.getElementById(localPlayerId);
-            elementToMove.style.left = elementToMove.getBoundingClientRect().left + 1 + 'px';
-            elementToMove.style.top = elementToMove.getBoundingClientRect().top - 1 + 'px';
+            elementToMove.style.left = elementToMove.getBoundingClientRect().left + localPlayerVelocity[0] + 'px';
+            elementToMove.style.top = elementToMove.getBoundingClientRect().top - localPlayerVelocity[1] + 'px';
             
             // emit the information about the square's location back to the server
             socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
@@ -156,32 +163,53 @@
             // emit the information about the square's location back to the server
             socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         }else if(keyD) {
-            camera.position.x += 0.01;
             let elementToMove = document.getElementById(localPlayerId);
             elementToMove.style.left = elementToMove.getBoundingClientRect().left + 1 + 'px';
             
             // emit the information about the square's location back to the server
             socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         }else if(keyA) {
-            camera.position.x -= 0.01;
             let elementToMove = document.getElementById(localPlayerId);
             elementToMove.style.left = elementToMove.getBoundingClientRect().left - 1 + 'px';
             
             // emit the information about the square's location back to the server
             socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         } else if(keyS) {
-            camera.position.z += 0.01;
             let elementToMove = document.getElementById(localPlayerId);
             elementToMove.style.top = elementToMove.getBoundingClientRect().top + 1 + 'px';
             
             // emit the information about the square's location back to the server
             socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
         } else if(keyW) {
-            camera.position.z -= 0.01;
             let elementToMove = document.getElementById(localPlayerId);
             elementToMove.style.top = elementToMove.getBoundingClientRect().top - 1 + 'px';
             
             // emit the information about the square's location back to the server
             socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
+        }else if(Math.abs(localPlayerVelocity[0]) > 0.1 || Math.abs(localPlayerVelocity[1]) > 0.1) {
+            if(Math.abs(localPlayerVelocity[0]) > 0.1) {
+                if(localPlayerVelocity[0] > 0.1) {
+                    localPlayerAcceleration = [-0.1, 0];
+                    localPlayerVelocity = dotProduct(localPlayerVelocity, localPlayerAcceleration)
+                }else {
+                    localPlayerAcceleration = [0.1, 0];
+                    localPlayerVelocity = dotProduct(localPlayerVelocity, localPlayerAcceleration)
+                }
+                let elementToMove = document.getElementById(localPlayerId);
+                elementToMove.style.left = elementToMove.getBoundingClientRect().left + localPlayerVelocity[0] + 'px';
+                elementToMove.style.top = elementToMove.getBoundingClientRect().top + localPlayerVelocity[1] + 'px';
+            }
+            if(Math.abs(localPlayerVelocity[1]) > 0.1) {
+                if(localPlayerVelocity[1] > 0.1) {
+                    localPlayerAcceleration = [0, -0.1];
+                    localPlayerVelocity = dotProduct(localPlayerVelocity, localPlayerAcceleration)
+                }else {
+                    localPlayerAcceleration = [0, 0.1];
+                    localPlayerVelocity = dotProduct(localPlayerVelocity, localPlayerAcceleration)
+                }
+                let elementToMove = document.getElementById(localPlayerId);
+                elementToMove.style.left = elementToMove.getBoundingClientRect().left + localPlayerVelocity[0] + 'px';
+                elementToMove.style.top = elementToMove.getBoundingClientRect().top + localPlayerVelocity[1] + 'px';
+            }
         }
     }, 10)

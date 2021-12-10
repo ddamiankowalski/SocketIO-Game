@@ -25,6 +25,7 @@ html, body, div, span, applet, object, iframe,
         }
         body {
             line-height: 1;
+            font-family: Arial, Helvetica, sans-serif;
         }
         ol, ul {
             list-style: none;
@@ -55,11 +56,20 @@ html, body, div, span, applet, object, iframe,
         }
         #username p {
             margin-bottom: 30px;
+            text-align: center;
             color: white;
+            text-align: center;
         }
         .square {
-            height: 10px;
-            width: 10px;
+            height: 40px;
+            width: 40px;
+            border-radius: 20px;
             background-color: yellow;
             position: absolute;
+        }
+
+        .square p {
+            width: 100px;
+            transform: translate(-30px, -30px);
+            text-align: center;
         }
