@@ -4,67 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        html, body, div, span, applet, object, iframe,
-        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-        a, abbr, acronym, address, big, cite, code,
-        del, dfn, em, img, ins, kbd, q, s, samp,
-        small, strike, strong, sub, sup, tt, var,
-        b, u, i, center,
-        dl, dt, dd, ol, ul, li,
-        fieldset, form, label, legend,
-        table, caption, tbody, tfoot, thead, tr, th, td,
-        article, aside, canvas, details, embed, 
-        figure, figcaption, footer, header, hgroup, 
-        menu, nav, output, ruby, section, summary,
-        time, mark, audio, video {
-            margin: 0;
-            padding: 0;
-            border: 0;
-            font-size: 100%;
-            font: inherit;
-            vertical-align: baseline;
-        }
-        /* HTML5 display-role reset for older browsers */
-        article, aside, details, figcaption, figure, 
-        footer, header, hgroup, menu, nav, section {
-            display: block;
-        }
-        body {
-            line-height: 1;
-        }
-        ol, ul {
-            list-style: none;
-        }
-        blockquote, q {
-            quotes: none;
-        }
-        blockquote:before, blockquote:after,
-        q:before, q:after {
-            content: '';
-            content: none;
-        }
-        table {
-            border-collapse: collapse;
-            border-spacing: 0;
-        }
-        #usernameWrapper {
-            width: 100%;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            z-index: 99;
-        }
-        #username {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-        }
-        #username p {
-            margin-bottom: 30px;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="css/styles.css">
     <title>Socket.IO app/game</title>
 </head>
 <body>
@@ -79,169 +19,29 @@
     </div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
+<script src="js/three.js"></script>
 <script>
-    var socket = io();
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    const renderer = new THREE. WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-    let localPlayerInfo, localPlayerId, localPlayerName, isGameStarted = false;
-    let keyD = false, keyW = false, keyA = false, keyS = false;
+    const geometry = new THREE.BoxGeometry(10, 10, 1);
+    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const cube = new THREE.Mesh( geometry, material );
+    scene.add( cube );
 
-    var form = document.getElementById('form');
-    var input = document.getElementById('input');
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (input.value) {
-        localPlayerName = input.value;
-        console.log(input.value)
-        socket.emit('startGame', localPlayerName);
-        isGameStarted = true;
-        document.getElementById('usernameWrapper').remove();
-        input.value = '';
-        }
-    });
+    camera.position.z = 15;
+    camera.rotation = 90;
+    console.log(camera.position.z)
+    cube.rotation.x = 90;
 
-    socket.on('addPlayersData', (res, playerInfo, id) => {
-        if(!isGameStarted) return;
-        localPlayerInfo = res;
-
-        // rendering the new element on screen for already existing clients
-        let newSquare = document.createElement('div');
-        newSquare.id = `${id}`;
-        newSquare.style.height = '10px';
-        newSquare.style.width = '10px';
-        newSquare.style.backgroundColor = 'red';
-        newSquare.style.position = 'absolute';
-        newSquare.style.top = `${playerInfo.yPos}px`;
-        newSquare.style.left = `${playerInfo.xPos}px`;
-        newSquare.className = 'square';
-        let name = document.createElement('p');
-        name.innerText = playerInfo.name;
-        name.style.position = 'absolute';
-        name.style.top = '-200%';
-        name.style.left = '-50%';
-        
-
-        newSquare.appendChild(name);
-        document.body.appendChild(newSquare);
-    })
-
-    socket.on('deletePlayersData', (res, id) => {
-        localPlayerInfo = res;
-
-        // delete element from html DOM
-        let allSquares = document.getElementsByClassName('square');
-        for(let square of allSquares) {
-            if(id == square.id) {
-                square.remove();
-            }
-        }
-    })
-
-    socket.on('refreshData', (res) => {
-        localPlayerInfo = res;
-        localPlayerInfo.forEach(square => {
-            if(square.playerId != localPlayerId) {
-                let elementToChange = document.getElementById(`${square.playerId}`);
-                if(elementToChange == null) return;
-                elementToChange.style.top = square.yPos + 'px';
-                elementToChange.style.left = square.xPos + 'px';
-            }  
-        })
-    })
-
-    socket.on('renderAllOther', (res, id) => {
-        localPlayerId = id;
-        res.forEach(square => {
-            if(id != square.playerId) {
-                // rendering every existing element on screen for the newly connected client
-                let newSquare = document.createElement('div');
-                newSquare.id = `${square.playerId}`;
-                newSquare.style.height = '10px';
-                newSquare.style.width = '10px';
-                newSquare.style.backgroundColor = 'red';
-                newSquare.style.position = 'absolute';
-                newSquare.style.top = `${square.yPos}px`;
-                newSquare.style.left = `${square.xPos}px`;
-                newSquare.className = 'square';
-                let name = document.createElement('p');
-                name.innerText = square.name;
-                name.style.position = 'absolute';
-                name.style.top = '-200%';
-                name.style.left = '-50%';
-                
-
-                newSquare.appendChild(name);
-
-                document.body.appendChild(newSquare);
-            }
-        })
-    })
-
-    // listening for WSAD movement
-    window.addEventListener('keydown', keyDownHandler, false);
-    window.addEventListener('keyup', keyUpHandler, false);
-
-    function keyDownHandler(ev) {
-        let keyCode = ev.keyCode;
-        switch (keyCode) {
-            case 68:
-                keyD = true;
-                break;
-            case 83: 
-                keyS = true;
-                break;
-            case 65:
-                keyA = true;
-                break;
-            case 87:
-                keyW = true;
-                break;
-        }
+    function animate() {
+        requestAnimationFrame( animate );
+        renderer.render( scene, camera );
     }
-
-    function keyUpHandler(ev) {
-        let keyCode = ev.keyCode;
-        switch (keyCode) {
-            case 68:
-                keyD = false;
-                break;
-            case 83: 
-                keyS = false;
-                break;
-            case 65:
-                keyA = false;
-                break;
-            case 87:
-                keyW = false;
-                break;
-        }
-    }
-
-    window.setInterval(() => {
-        if(keyD) {
-            let elementToMove = document.getElementById(localPlayerId);
-            elementToMove.style.left = elementToMove.getBoundingClientRect().left + 1 + 'px';
-            
-            // emit the information about the square's location back to the server
-            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
-        }else if(keyA) {
-            let elementToMove = document.getElementById(localPlayerId);
-            elementToMove.style.left = elementToMove.getBoundingClientRect().left - 1 + 'px';
-            
-            // emit the information about the square's location back to the server
-            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
-        } else if(keyS) {
-            let elementToMove = document.getElementById(localPlayerId);
-            elementToMove.style.top = elementToMove.getBoundingClientRect().top + 1 + 'px';
-            
-            // emit the information about the square's location back to the server
-            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
-        } else if(keyW) {
-            let elementToMove = document.getElementById(localPlayerId);
-            elementToMove.style.top = elementToMove.getBoundingClientRect().top - 1 + 'px';
-            
-            // emit the information about the square's location back to the server
-            socket.volatile.emit('changePos', localPlayerId, elementToMove.getBoundingClientRect().left, elementToMove.getBoundingClientRect().top);
-        }
-    }, 1)
+    
+    animate();
 </script>
+<script src="js/gameConnection.js"></script>
 </html>

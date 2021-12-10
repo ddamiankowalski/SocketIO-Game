@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const port = process.env.PORT || 3000;
+app.use(express.static('www'))
 
 let playerList = [];
 let activeClients = [];
